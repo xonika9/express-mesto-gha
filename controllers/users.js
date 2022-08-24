@@ -15,10 +15,14 @@ const getUsers = (req, res) => {
       }
       return res.send({ data: users });
     })
-    .catch(() =>
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }),
+    .catch(
+      () =>
+        // PRETTIER при сохранении сам переносит строку
+        // eslint-disable-next-line implicit-arrow-linebreak
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }),
+      // eslint-disable-next-line function-paren-newline
     );
 };
 
@@ -35,7 +39,7 @@ const getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(BAD_REQUEST).send({
-          message: `${BAD_REQUEST} - Validation error`,
+          message: `${BAD_REQUEST} - Validation error111`,
         });
       }
       return res

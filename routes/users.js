@@ -12,7 +12,7 @@ const {
 userRouter.get('/', getUsers);
 userRouter.get('/:userId', getUserById);
 userRouter.post('/', express.json(), createUser);
-userRouter.patch('/me', updateUserProfile);
-userRouter.patch('/me/avatar', updateUserAvatar);
+userRouter.patch('/me', express.json(), updateUserProfile);
+userRouter.patch('/me/avatar', express.json(), updateUserAvatar);
 
 module.exports = userRouter;
