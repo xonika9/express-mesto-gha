@@ -9,10 +9,14 @@ const getCards = (req, res) => {
   Card.find({})
     .populate('owner')
     .then((cards) => res.send({ cards }))
-    .catch(() =>
-      res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }),
+    .catch(
+      () =>
+        // PRETTIER при сохранении сам переносит строку
+        // eslint-disable-next-line implicit-arrow-linebreak
+        res
+          .status(INTERNAL_SERVER_ERROR)
+          .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }),
+      // eslint-disable-next-line function-paren-newline
     );
 };
 
