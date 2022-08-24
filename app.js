@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const router = require('./routes');
+const router = require('./routes/index');
+const { NOT_FOUND } = require('./utils/ErrorCodes');
 
 const { PORT = 3000 } = process.env;
 
@@ -10,11 +11,14 @@ app.use((req, res, next) => {
   req.user = {
     _id: '63060c5782f30d3ccb231547',
   };
-
   next();
 });
 
 app.use('/', router);
+
+app.use((req, res) => {
+  res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - Page not found` });
+});
 
 async function main() {
   await mongoose.connect('mongodb://localhost:27017/mestodb', {
