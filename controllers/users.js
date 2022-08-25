@@ -7,14 +7,7 @@ const {
 
 const getUsers = (req, res) => {
   User.find({})
-    .then((users) => {
-      if (users.length === 0) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - User not found` });
-      }
-      return res.send({ data: users });
-    })
+    .then((users) => res.send({ data: users }))
     .catch(
       () =>
         // PRETTIER при сохранении сам переносит строку
