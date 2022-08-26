@@ -9,10 +9,12 @@ const {
   updateUserAvatar,
 } = require('../controllers/users');
 
+userRouter.use(express.json());
+
 userRouter.get('/', getUsers);
 userRouter.get('/:userId', getUserById);
-userRouter.post('/', express.json(), createUser);
-userRouter.patch('/me', express.json(), updateUserProfile);
-userRouter.patch('/me/avatar', express.json(), updateUserAvatar);
+userRouter.post('/', createUser);
+userRouter.patch('/me', updateUserProfile);
+userRouter.patch('/me/avatar', updateUserAvatar);
 
 module.exports = userRouter;
