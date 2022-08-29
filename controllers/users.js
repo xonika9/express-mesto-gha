@@ -1,31 +1,19 @@
 const User = require('../models/user');
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-} = require('../utils/ErrorCodes');
+const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/ErrorCodes');
 
 const getUsers = (req, res) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(
-      () =>
-        // PRETTIER при сохранении сам переносит строку
-        // eslint-disable-next-line implicit-arrow-linebreak
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }),
-      // eslint-disable-next-line function-paren-newline
-    );
+    .catch(() => res
+      .status(INTERNAL_SERVER_ERROR)
+      .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }));
 };
 
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - User not found` });
+        return res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - User not found` });
       }
       return res.send({ user });
     })
@@ -61,16 +49,10 @@ const createUser = (req, res) => {
 const updateUserProfile = (req, res) => {
   const { name, about } = req.body;
 
-  User.findByIdAndUpdate(
-    req.user._id,
-    { name, about },
-    { new: true, runValidators: true },
-  )
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - User not found` });
+        return res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - User not found` });
       }
       return res.send({ user });
     })
@@ -89,16 +71,10 @@ const updateUserProfile = (req, res) => {
 const updateUserAvatar = (req, res) => {
   const { avatar } = req.body;
 
-  User.findByIdAndUpdate(
-    req.user._id,
-    { avatar },
-    { new: true, runValidators: true },
-  )
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - User not found` });
+        return res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - User not found` });
       }
       return res.send({ user });
     })

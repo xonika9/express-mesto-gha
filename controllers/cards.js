@@ -1,23 +1,13 @@
 const Card = require('../models/card');
-const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
-} = require('../utils/ErrorCodes');
+const { BAD_REQUEST, NOT_FOUND, INTERNAL_SERVER_ERROR } = require('../utils/ErrorCodes');
 
 const getCards = (req, res) => {
   Card.find({})
     .populate('owner')
     .then((cards) => res.send({ cards }))
-    .catch(
-      () =>
-        // PRETTIER при сохранении сам переносит строку
-        // eslint-disable-next-line implicit-arrow-linebreak
-        res
-          .status(INTERNAL_SERVER_ERROR)
-          .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }),
-      // eslint-disable-next-line function-paren-newline
-    );
+    .catch(() => res
+      .status(INTERNAL_SERVER_ERROR)
+      .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }));
 };
 
 const createCard = (req, res) => {
@@ -41,9 +31,7 @@ const deleteCard = (req, res) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - Card not found` });
+        return res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - Card not found` });
       }
       return res.send({ card });
     })
@@ -67,9 +55,7 @@ const likeCard = (req, res) => {
   )
     .then((card) => {
       if (!card) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - Card not found` });
+        return res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - Card not found` });
       }
       return res.send({ card });
     })
@@ -86,16 +72,10 @@ const likeCard = (req, res) => {
 };
 
 const dislikeCard = (req, res) => {
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: req.user._id } },
-    { new: true },
-  )
+  Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, { new: true })
     .then((card) => {
       if (!card) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - Card not found` });
+        return res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - Card not found` });
       }
       return res.send({ card });
     })
