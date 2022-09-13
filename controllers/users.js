@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
   BAD_REQUEST,
@@ -125,7 +126,10 @@ const login = (req, res) => {
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      res.send(user);
+      const token = jwt.sign({ _id: user._id }, 'secret-key', {
+        expiresIn: '7d',
+      });
+      res.send({ token });
     })
     .catch(() => {
       res
