@@ -6,6 +6,7 @@ const {
   NOT_FOUND,
   INTERNAL_SERVER_ERROR,
   UNAUTHORIZED,
+  FORBIDDEN,
 } = require('../utils/ErrorCodes');
 
 const getUsers = (req, res) => {
@@ -124,6 +125,12 @@ const updateUserAvatar = (req, res) => {
 const login = (req, res) => {
   const { email, password } = req.body;
 
+  if (!email || !password) {
+    return res
+      .status(FORBIDDEN)
+      .send({ message: `${FORBIDDEN} - The fields must be filled in` });
+  }
+
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'secret-key', {
@@ -143,6 +150,28 @@ const login = (req, res) => {
     });
 };
 
+const getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        return res
+          .status(NOT_FOUND)
+          .send({ message: `${NOT_FOUND} - User not found` });
+      }
+      return res.send({ user });
+    })
+    .catch((e) => {
+      if (e.name === 'CastError') {
+        return res.status(BAD_REQUEST).send({
+          message: `${BAD_REQUEST} - Validation error`,
+        });
+      }
+      return res
+        .status(INTERNAL_SERVER_ERROR)
+        .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` });
+    });
+};
+
 module.exports = {
   getUsers,
   getUserById,
@@ -150,4 +179,5 @@ module.exports = {
   updateUserProfile,
   updateUserAvatar,
   login,
+  getCurrentUser,
 };
