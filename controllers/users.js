@@ -29,7 +29,7 @@ const getUserById = (req, res) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(BAD_REQUEST).send({
-          message: `${BAD_REQUEST} - Validation error111`,
+          message: `${BAD_REQUEST} - Validation error`,
         });
       }
       return res
@@ -129,7 +129,12 @@ const login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, 'secret-key', {
         expiresIn: '7d',
       });
-      res.send({ token });
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+      res.send({ data: user.toJSON() });
     })
     .catch(() => {
       res
