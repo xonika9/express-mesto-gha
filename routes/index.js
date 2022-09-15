@@ -6,8 +6,10 @@ const {
   signInValidation,
   signUpValidation,
 } = require('../middlewares/validation');
+const { NotFoundError } = require('../utils/ErrorCodes');
+const { pageNotFoundMessage } = require('../utils/ErrorMessages');
+const auth = require('../middlewares/auth');
 
-const router = express.Router();
 const userRouter = require('./users');
 const cardRouter = require('./cards');
 
@@ -18,8 +20,8 @@ router.post('/signup', signUpValidation, createUser);
 router.use(auth);
 router.use('/users', userRouter);
 router.use('/cards', cardRouter);
-router.use((req, res) => {
-  res.status(NOT_FOUND).send({ message: `${NOT_FOUND} - Page not found` });
+router.use((req, res, next) => {
+  next(new NotFoundError(pageNotFoundMessage));
 });
 
 module.exports = router;
