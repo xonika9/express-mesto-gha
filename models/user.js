@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
+const { avatarUrlRegExp } = require('../utils/AvatarUrlRegExp');
 
 const userSchema = new mongoose.Schema({
   name: {
@@ -20,24 +21,32 @@ const userSchema = new mongoose.Schema({
     required: true,
     default:
       'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-  },
-  email: {
-    type: String,
-    validate: {
-      validator(email) {
-        return validator.isEmail(email);
+      validate: {
+        validator(link) {
+          return avatarUrlRegExp.test(link);
+        },
+        message: 'Enter a valid URL',
       },
-      message: 'Enter a valid email',
     },
-    required: true,
-    unique: true,
+    email: {
+      type: String,
+      validate: {
+        validator(email) {
+          return validator.isEmail(email);
+        },
+        message: 'Enter a valid email',
+      },
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+      select: false,
+    },
   },
-  password: {
-    type: String,
-    required: true,
-    minlength: 8,
-  },
-});
+  { versionKey: false },
+);
 
 userSchema.methods.toJSON = function hidePassword() {
   const user = this.toObject();

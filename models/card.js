@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { avatarUrlRegExp } = require('../utils/AvatarUrlRegExp');
 
 const cardSchema = new mongoose.Schema({
   name: {
@@ -10,6 +11,12 @@ const cardSchema = new mongoose.Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator(link) {
+        return avatarUrlRegExp.test(link);
+      },
+      message: 'Enter a valid URL',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
