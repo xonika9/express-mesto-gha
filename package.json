@@ -1,7 +1,7 @@
 {
   "name": "express-mesto-gha",
-  "version": "1.0.0",
-  "description": "Проект Mesto фронтенд + бэкенд",
+  "version": "2.0.0",
+  "description": "Mesto frontend + backend",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -27,7 +27,13 @@
     "prettier": "^2.7.1"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "celebrate": "^15.0.1",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.0.2",
     "express": "^4.18.1",
-    "mongoose": "^6.5.2"
+    "jsonwebtoken": "^8.5.1",
+    "mongoose": "^6.5.2",
+    "validator": "^13.7.0"
   }
 }

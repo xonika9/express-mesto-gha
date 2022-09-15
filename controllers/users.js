@@ -1,60 +1,67 @@
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
-  BAD_REQUEST,
-  NOT_FOUND,
-  INTERNAL_SERVER_ERROR,
+  BadRequestError,
+  NotFoundError,
+  ConflictError,
 } = require('../utils/ErrorCodes');
+const {
+  badRequestMessage,
+  userNotFoundMessage,
+  emailAlreadyTakenMessage,
+} = require('../utils/ErrorMessages');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.send({ data: users }))
-    .catch(() => res
-      .status(INTERNAL_SERVER_ERROR)
-      .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` }));
+    .catch(next);
 };
 
-const getUserById = (req, res) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - User not found` });
+        throw new NotFoundError(userNotFoundMessage);
       }
-      return res.send({ user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(BAD_REQUEST).send({
-          message: `${BAD_REQUEST} - Validation error111`,
-        });
+        return next(new BadRequestError(badRequestMessage));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` });
+      return next(err);
     });
 };
 
-const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+const createUser = (req, res, next) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
-  User.create({ name, about, avatar })
+  bcrypt
+    .hash(password, 10)
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({
-          message: `${BAD_REQUEST} - Validation error`,
-        });
+        return next(new BadRequestError(badRequestMessage));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` });
+      if (err.code === 11000) {
+        return next(new ConflictError(emailAlreadyTakenMessage));
+      }
+      return next(err);
     });
 };
 
-const updateUserProfile = (req, res) => {
+const updateUserProfile = (req, res, next) => {
   const { name, about } = req.body;
-
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
@@ -62,27 +69,20 @@ const updateUserProfile = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - User not found` });
+        throw new NotFoundError(userNotFoundMessage);
       }
-      return res.send({ user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({
-          message: `${BAD_REQUEST} - Validation error`,
-        });
+        return next(new BadRequestError(badRequestMessage));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` });
+      return next(err);
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
-
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
@@ -90,21 +90,47 @@ const updateUserAvatar = (req, res) => {
   )
     .then((user) => {
       if (!user) {
-        return res
-          .status(NOT_FOUND)
-          .send({ message: `${NOT_FOUND} - User not found` });
+        throw new NotFoundError(userNotFoundMessage);
       }
-      return res.send({ user });
+      return res.send({ data: user });
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(BAD_REQUEST).send({
-          message: `${BAD_REQUEST} - Validation error`,
-        });
+        return next(new BadRequestError(badRequestMessage));
       }
-      return res
-        .status(INTERNAL_SERVER_ERROR)
-        .send({ message: `${INTERNAL_SERVER_ERROR} - Server error` });
+      return next(err);
+    });
+};
+
+const login = (req, res, next) => {
+  const { email, password } = req.body;
+
+  User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'secret-key');
+      res.cookie('jwt', token, {
+        maxAge: 3600000 * 24 * 7,
+        httpOnly: true,
+        sameSite: true,
+      });
+      res.send({ data: user.toJSON() });
+    })
+    .catch(next);
+};
+
+const getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError(userNotFoundMessage);
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return next(new BadRequestError(badRequestMessage));
+      }
+      return next(err);
     });
 };
 
@@ -114,4 +140,6 @@ module.exports = {
   createUser,
   updateUserProfile,
   updateUserAvatar,
+  login,
+  getCurrentUser,
 };
