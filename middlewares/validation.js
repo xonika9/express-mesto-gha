@@ -7,7 +7,7 @@ const idValidationMethod = (value, helper) => (mongoose.isValidObjectId(value) ?
 const signInValidation = celebrate({
   body: Joi.object().keys({
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(6),
+    password: Joi.string().required(),
   }),
 });
 
@@ -17,7 +17,7 @@ const signUpValidation = celebrate({
     about: Joi.string().min(2).max(30),
     avatar: Joi.string().pattern(avatarUrlRegExp),
     email: Joi.string().required().email(),
-    password: Joi.string().required().min(6),
+    password: Joi.string().required(),
   }),
 });
 
