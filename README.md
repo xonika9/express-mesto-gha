@@ -1,6 +1,4 @@
-# Mesto frontend + backend
-
-[![Tests for sprint 13](https://github.com/xonika9/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/xonika9/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests for sprint 14](https://github.com/xonika9/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/xonika9/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
+# Mesto backend
 
 ## Directories
 
